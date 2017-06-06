@@ -23,9 +23,9 @@ classdef ibinent
 
     function x=binentinv_int(self, h)
 
-      common=subset(h, infsupdec("0","1"));
+      common=subset(h, infsupdec('0','1'));
       if ~common
-	h=intersect(h, infsupdec("0","1"));
+	h=intersect(h, infsupdec('0','1'));
       end
       
       %% start bisecting
@@ -70,11 +70,11 @@ classdef ibinent
       end
 
       x=union(x_hi,x_lo);
-      x=intersect(x, infsupdec("0","1/2"));
+      x=intersect(x, infsupdec('0','1/2'));
       if common
-	x=infsupdec(x,"com");
+	x=infsupdec(x,'com');
       else
-	x=infsupdec(x,"trv");
+	x=infsupdec(x,'trv');
       end
     end
   end

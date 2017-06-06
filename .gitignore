@@ -1,1 +1,14 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*~
+comment.cut
+\#*\#
+.\#*
+*.bak
 octave-workspace
+*.bcf

@@ -1,0 +1,148 @@
+\documentclass[a4paper,12pt]{scrartcl}
+
+%%%%%%%%%%%%%%%%% 
+% Customization %
+%%%%%%%%%%%%%%%%% 
+
+% Load all packages
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage[capitalize]{cleveref}
+\usepackage{biblatex}
+\usepackage{setspace}
+
+\newtheorem{lemma}{Lemma}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Definition for this document only %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\heps}{\ensuremath{\hat \varepsilon}}
+\DeclareMathOperator{\cvx}{conv}
+\newcommand{\hPcond}[2]{\ensuremath{\hat{\mathrm{P}}\{#1|#2\}}}
+\newcommand{\Pcond}[2]{\ensuremath{\mathrm{P}}\{#1|#2\}}
+\newcommand{\hProb}{\ensuremath{\hat{\mathrm{P}}}}
+\newcommand{\ul}[1]{\ensuremath{\underline{#1}}}
+\newcommand{\wt}[1]{\ensuremath{\widetilde{#1}}}
+\newcommand{\vt}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\rv}[1]{\ensuremath{\ensuremath{\mathsf{\uppercase{#1}}}}}
+\newcommand{\hrv}[1]{\ensuremath{\hat{\rv{#1}}}}
+\newcommand{\transp}{\ensuremath{^{\mathrm T}}}
+\newcommand{\SSS}{\ensuremath{\mathcal S}}
+\newcommand{\OOO}{\ensuremath{\mathcal O}}
+\newcommand{\bernoulli}[1]{\ensuremath{\mathcal B(#1)}}
+\newcommand{\DSBS}[1]{\ensuremath{\mathrm{DSBS}(#1)}}
+\newcommand{\RR}{\ensuremath{\mathbb R}}
+\newcommand{\defas}{\ensuremath{:=}}
+\newcommand{\mkv}{\ensuremath{-}}
+\newcommand{\binEnt}[1]{\ensuremath{\mathrm h_0(#1)}}
+\newcommand{\mutInf}[2]{\ensuremath{\mathrm I(#1;#2)}}
+\newcommand{\Nto}[1]{\ensuremath{\{1,2,\dots,#1\}}}
+
+
+%%%%%%%%%%
+% Layout %
+%%%%%%%%%%
+\geometry{a4paper, inner=2.5cm, outer=2.5cm, top=3.25cm, bottom=3.25cm, headsep=1cm}
+\setstretch{1.2}
+\setlength\parskip{0pt
+	plus .1\baselineskip
+}
+\setlength\topsep{.5\baselineskip
+	plus .1\baselineskip
+}
+
+\sloppy
+\allowdisplaybreaks
+\raggedbottom
+
+%%%%%%%%%%%%%%%%%%%%
+% Document Details %
+%%%%%%%%%%%%%%%%%%%%
+\title{Readme}
+\author{Georg Pichler}
+\date{\today}
+
+
+\begin{document}
+
+% What would you like?
+%\longversion %default
+%\shortversion %or just put "shortversion" somewhere in the filename
+
+% Title Page
+\maketitle
+
+\section{Overview}
+\label{sec:overview}
+Assume $p \in (0,\frac 12)$ and define the set $\SSS' \subseteq \RR^3$ as
+\begin{align}
+  \SSS' \defas \smash{\bigcup_{0 \le \alpha, \beta \le \frac 12}} \big\{
+  (\mu, R_1, R_2) :
+  R_1 &\ge 1 - \binEnt{\alpha},\, \nonumber\\*
+  R_2 &\ge 1 - \binEnt{\beta},\, \nonumber\\*
+  \mu &\le 1 - \binEnt{\alpha * p * \beta} 
+        \big\},
+\end{align}
+where $\binEnt{t} \defas -t\log_2(t) - (1-t) \log_2(1-t)$ is the binary entropy function and $a * b \defas a(1-b)+(1-a)b$ is the binary convolution.
+Let $\SSS \defas \cvx(\SSS')$ denote the convex hull of $\SSS'$.
+
+Note that we can also define $\SSS'' \subseteq \RR^3$ as
+\begin{align}
+  \SSS'' \defas \smash{\bigcup_{0 \le \alpha, \beta \le \frac 12}} \big\{
+  (\mu, R_1, R_2) :
+  R_1 &= 1 - \binEnt{\alpha},\, \nonumber\\*
+  R_2 &= 1 - \binEnt{\beta},\, \nonumber\\*
+  \mu &= 1 - \binEnt{\alpha * p * \beta} 
+        \big\}
+\end{align}
+and obtain $\SSS' = \SSS'' + \OOO$, where $\OOO \defas \RR_- \times \RR_+ \times \RR_+ $. Letting $\wt\SSS$ be the upper concave envelope of $\SSS''$, we have $\SSS = \wt\SSS + \OOO$.
+
+The random variables $(\rv x, \rv y) \sim \DSBS{p}$ are a doubly symmetric binary source with parameter $p$, i.e., $\rv x \sim \bernoulli{\frac12}$ is a Bernoulli random variable with parameter $\frac12$ and $\rv y \defas \rv x \oplus \rv z$, where $\oplus$ denotes the binary ``xor'' operation. The random variable $\rv z \sim \bernoulli{p}$ is independent of $\rv x$. We want to show that there exist random variables $(\rv u, \rv v)$ with\footnote{For random variables $\rv x$, $\rv y$ and $\rv z$ we use the notation $\rv x \mkv \rv y \mkv \rv z$ to denote that $\rv x$, $\rv y$ and $\rv z$ form a Markov chain in this order, i.e, $\rv x$ is independent of $\rv z$ given $\rv y$.} $\rv u \mkv \rv x \mkv \rv z$ and $\rv x \mkv \rv z \mkv \rv v$, such that $(\mu, R_1, R_2) \notin \SSS$, where
+\begin{align}
+  R_1 &= \mutInf{\rv u}{\rv x} \\
+  R_2 &= \mutInf{\rv v}{\rv z} \\
+  \mu &= \mutInf{\rv u}{\rv x} + \mutInf{\rv v}{\rv z} - \mutInf{\rv u \rv v}{\rv x \rv z} .
+\end{align}
+
+\section{Counterexample}
+\label{sec:counterexample}
+By random search we numerically found an approximate distribution $\hPcond{\hrv u=u, \hrv v=v}{\rv x=x, \rv z=z}$ with $u,v,x,z \in \{0,1\}$, that will serve as a candidate. We interpret the conditional distribution $\hProb$ as a vector in $[0,1]^{16}$. Additionally $\hProb$ has the property that $\hPcond{\hrv u=u}{\rv x=x} \approx \hPcond{\hrv v=u}{\rv z=x}$, up to numerical error. Notice that the required Markov chains $\rv u \mkv \rv x \mkv \rv z$ and $\rv x \mkv \rv z \mkv \rv v$, as well as the requirements $\sum_{u,v} \Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z} = 1$ for all $x,z \in \{0,1\}$ are linear constraints on $\Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z} \in [0,1]^{16}$. By calculating the kernel of the corresponding matrix, we can find a symbolic approximation $\mathrm{P}$ of $\hat{\mathrm{P}}$ which is a probability distribution satisfying the required Markov chains, as well as $\Pcond{\rv u=u}{\rv x=x} = \Pcond{\rv v=u}{\rv z=x}$. Hence, we found the candidate $(\mu', R', R')$ with $R'=\mutInf{\rv u}{\rv x}=\mutInf{\rv v}{\rv z}$ and $\mu' = 2R' - \mutInf{\rv u \rv v}{\rv x \rv z}$. Using interval arithmetic\footnote{We will use underlined type to denote intervals and use the following notation to compare intervals: $\ul a < \ul b$ iff $a < b$ for all $a \in \ul a$ and $b \in \ul b$. Additionally, we define $b < \ul a$ iff $\{b\} < \ul a$.}~\cite{Moore2009Introduction}, we compute intervals $\ul\mu' \ni \mu'$ and $\ul R' \ni R'$.
+
+\section{The Lower Bound}
+\label{sec:lower-bound}
+
+Let $\hat\mu(R_1,R_2) \defas \max\{\mu : (\mu, R_1, R_2) \in \SSS \}$ and by slightly abusing notation $\hat\mu(R) \defas \hat\mu(R,R)$. We will upper bound $\hat\mu(R')$ in order to ultimately prove $\hat\mu(R') < \ul\mu'$.
+
+Given a rate pair $(R_1, R_2) \in [0,1]^2$, we can obtain intervals $\ul\alpha, \ul\beta$ such that $R_1 \in 1 - \binEnt{\ul\alpha}$ and $R_2 \in 1 - \binEnt{\ul\beta}$, using an interval implementation of the inverse binary entropy function. This yields an interval $\ul\mu(\ul\alpha, \ul\beta) \supseteq 1 - \binEnt{\ul\alpha * p * \ul\beta}$.
+Given strictly increasing rates $R(i) \in [0,1]$ with $i \in \Nto{M}$ and $0 = R(1) < R(2) < \dots < R(M) = 1$,
+we perform this process on the $M \times M$ grid $(R(i), R(j))_{i,j=1\dots M}$ where $M \approx 800$ and obtain $\ul\mu(i,j)_{i,j=1\dots M}$, an interval representation of $\SSS''$. However, we are interested in $\wt\SSS$, i.e., the upper concave envelope of $\mu$.
+We shift $\ul\mu$ by one and obtain $\ul{\wt\mu}(i,j) \defas \ul\mu\big(\min(i+1,M),\min(j+1,M)\big)$.
+
+\begin{lemma}
+  \label{lem:bound}
+  Let $\vt a \in \OOO$, $b \in \RR$. If $\vt a \cdot (\ul{\wt\mu}(i,j), R(i), R(j)) \ge b$ for all $i,j = 1\dots M$, then $\vt a \cdot \vt x \ge b$ for all $\vt x \in \wt\SSS$.   
+\end{lemma}
+\begin{proof}
+  % Observe that $\mu(i,j)$ is increasing in the sense that $\mu(i,j) \le \mu(i+1,j)$ and $\mu(i,j) \le \mu(i,j+1)$.
+  If there is a point in $\vt x \in \wt\SSS$ with $\vt a \cdot \vt x < b$, then there must also be a point $\vt x' = (\mu, R_1, R_2)  \in \SSS''$ with $\vt a \cdot \vt x' < b$. There is a square $[R(i), R(i+1)] \times [R(j), R(j+1)] \ni (R_1, R_2)$. Clearly $\mu \not\ge \ul{\wt\mu}(i,j)$ and hence $\vt a \cdot (\ul{\wt\mu}(i,j), R(i), R(j)) \not\ge \vt a \cdot \vt x' < b$.
+\end{proof}
+
+We obtain a suitable pair $\vt a \in \OOO$, $b \in \RR$ and verify the condition of \cref{lem:bound}. Clearly $\vt a \cdot \vt x \ge b$ for all $\vt x \in \SSS$. It remains to verify that
+\begin{align}
+  \frac{b - (\vt a_2, \vt a_3)\transp \cdot (\ul R', \ul R')\transp}{\vt a_1} < \ul\mu' .
+\end{align}
+
+ 
+% \begin{appendix}
+%   \section{Appendix}
+% \end{appendix}
+
+
+% Bibliography
+%\cleardoublepage
+\printbibliography[heading=bibintoc]
+
+
+\end{document}

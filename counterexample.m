@@ -3,8 +3,8 @@
 clear all;
 close all;
 
-if compare_versions(OCTAVE_VERSION(), "4.0.0", "<")
-  error("octave version 4.0.0 or higher required; you have %s\n", OCTAVE_VERSION())
+if compare_versions(OCTAVE_VERSION(), '4.0.0', '<')
+  error('octave version 4.0.0 or higher required; you have %s\n', OCTAVE_VERSION())
 end
 
 pkg load interval;
@@ -91,7 +91,7 @@ end
 %% Compute the entropy of a vector along the 1st dimension
 function h=ent(x)
   t=-x.*log2(x);
-  if ~strcmp(class(x), "infsupdec")
+  if ~strcmp(class(x), 'infsupdec')
     t(isnan(t))=0;
   end
   h=sum(t,1);
@@ -100,14 +100,14 @@ end
 %% Binary entropy function
 function h=binent(x)
   h=-x.*log2(x)-(1-x).*log2(1-x);
-  if (strcmp(class(x),"infsupdec"))
-    h(ismember(infsupdec("0"),x))=union(h(ismember(infsupdec("0"),x)),infsupdec("0"));
+  if (strcmp(class(x),'infsupdec'))
+    h(ismember(infsupdec('0'),x))=union(h(ismember(infsupdec('0'),x)),infsupdec('0'));
   else
     h(isnan(h))=0;
   end
 end
 
-load("numeric_distribution.mat");
+load('numeric_distribution.mat');
 
 %% Grid parameters
 K=800;
@@ -136,7 +136,7 @@ for x=1:2
   end
 end
 
-%% a is the parameter of the BSCs X -> U and Z -> V
+%% as is the parameter of the BSCs X -> U and Z -> V
 as=Ps_UVgXZ{1,1,2,2}+Ps_UVgXZ{1,2,2,2};
 
 %% ps is the paramter of the BSC X -> Z
@@ -149,14 +149,14 @@ for x=1:2
   for z=1:2
     for u=1:2
       for v=1:2
-	Ps_UVgXZ_ref{u,v,x,z}=sym("1");
+	Ps_UVgXZ_ref{u,v,x,z}=sym('1');
 	if x==u
-	  Ps_UVgXZ_ref{u,v,x,z}=Ps_UVgXZ_ref{u,v,x,z}*(sym("1")-as);
+	  Ps_UVgXZ_ref{u,v,x,z}=Ps_UVgXZ_ref{u,v,x,z}*(sym('1')-as);
 	else
 	  Ps_UVgXZ_ref{u,v,x,z}=Ps_UVgXZ_ref{u,v,x,z}*as;
 	end
 	if z==v
-	  Ps_UVgXZ_ref{u,v,x,z}=Ps_UVgXZ_ref{u,v,x,z}*(sym("1")-as);
+	  Ps_UVgXZ_ref{u,v,x,z}=Ps_UVgXZ_ref{u,v,x,z}*(sym('1')-as);
 	else
 	  Ps_UVgXZ_ref{u,v,x,z}=Ps_UVgXZ_ref{u,v,x,z}*as;
 	end
@@ -205,7 +205,7 @@ end
 Pi_UV=Pic_UVXZ{1,1}+Pic_UVXZ{1,2}+Pic_UVXZ{2,1}+Pic_UVXZ{2,2};
 
 %% Calculate the entropy of (XZ) as 1 + h(p)
-Hi_XZ=infsupdec("1")+binent(ppi);
+Hi_XZ=infsupdec('1')+binent(ppi);
 %% Calculate the entropy of (UXZV)
 Hi_UVXZ=ent(Piv_UVXZ);
 %% Calculate the entropy of (UV)
@@ -241,12 +241,14 @@ MUmi=1-binent(star(star(aami,ppi),bbmi));
 
 %% Shift everything
 MUmi(1:K-1,1:K-1)=MUmi(2:K,2:K);
+MUmi(K,1:K-1)=MUmi(K,2:K);
+MUmi(1:K-1,K)=MUmi(2:K,K);
 
 %% Construct vectors from arrays
 RRv1=[reshape(RRm1, [] ,1)];
 RRv2=[reshape(RRm2, [] ,1)];
-#RRvi1=[reshape(RRmi1, [] ,1)];
-#RRvi2=[reshape(RRmi2, [] ,1)];
+RRvi1=[reshape(RRmi1, [] ,1)];
+RRvi2=[reshape(RRmi2, [] ,1)];
 MUvi=[reshape(MUmi, [] ,1)];
 
 %% Use the supremum of the intervals for calculating the upper concave envelope
@@ -255,5 +257,11 @@ MUv=sup(MUvi);
 %% Get the upper concave envelope, triangulated
 T=upper_concave_envelope3_tri(RRv1, RRv2, MUv);
 
-MUi=bound_interp2_verified(RRv1,RRv2,MUvi, T, Ri, Ri);
-printf("Distance between bounds is at least %e\n", inf(mui - MUi ));
+i=tsearchn([RRv1, RRv2], T, sup([Ri, Ri]));
+t=T(i,:);
+q=hyperplane3(RRvi1(t,:),RRvi2(t,:),MUvi(t,:));
+assert(verify_hyperplane(q,RRvi1,RRvi2,MUvi));
+assert(strictprecedes(q(3),infsupdec('0')));
+MUi=z_interp2(q,Ri,Ri);
+
+printf('Distance is at least %e\n', inf(mui - MUi));
