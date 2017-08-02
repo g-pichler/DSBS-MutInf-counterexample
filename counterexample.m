@@ -7,105 +7,9 @@ if compare_versions(OCTAVE_VERSION(), '4.0.0', '<')
   error('octave version 4.0.0 or higher required; you have %s\n', OCTAVE_VERSION())
 end
 
+addpath('./utils');
 pkg load interval;
 pkg load symbolic;
-
-%%%%%%%%%%%%%%%%%%%%%%%
-%% Utility Functions %%
-%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Construct a symbolic projection matrix
-function Nproj=get_projection_matrix()
-  %% Construct Matrix A for checking Conditions
-  A=[];
-
-  %% Sum to one
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,:,1,1)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,:,1,2)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,:,2,1)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,:,2,2)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  %% 1st short Markov chain [ U -- X -- Z ] 
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(1,:,1,1)=1;
-  P_UVgXZ(1,:,1,2)=-1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(1,:,2,1)=1;
-  P_UVgXZ(1,:,2,2)=-1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  %% 2nd short Markov chain [ X -- Z -- V ] 
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,1,1,1)=1;
-  P_UVgXZ(:,1,2,1)=-1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,1,1,2)=1;
-  P_UVgXZ(:,1,2,2)=-1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  %% Preserve marginal p(u|x)
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(1,:,1,1)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(1,:,2,1)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  %% Preserve marginal p(v|z)
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,1,1,1)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  P_UVgXZ = zeros(2,2,2,2);
-  P_UVgXZ(:,1,1,2)=1;
-  A=[A;reshape(P_UVgXZ,1,[])];
-
-  %% Obtain a symbolic projection onto the null space of A
-  A_sym=sym(A);
-  N_sym=null(A_sym);
-  North=orth(N_sym);
-  Nproj=North*North';
-end
-
-%% Binary convolution
-function c=star(a,b)
-  c=a.*(1-b)+(1-a).*b;
-end
-
-%% Compute the entropy of a vector along the 1st dimension
-function h=ent(x)
-  t=-x.*log2(x);
-  if ~strcmp(class(x), 'infsupdec')
-    t(isnan(t))=0;
-  end
-  h=sum(t,1);
-end
-
-%% Binary entropy function
-function h=binent(x)
-  h=-x.*log2(x)-(1-x).*log2(1-x);
-  if (strcmp(class(x),'infsupdec'))
-    h(ismember(infsupdec('0'),x))=union(h(ismember(infsupdec('0'),x)),infsupdec('0'));
-  else
-    h(isnan(h))=0;
-  end
-end
 
 load('numeric_distribution.mat');
 
@@ -117,7 +21,9 @@ bdp=0.1;
 %% Initialize inverse binary entropy function
 ib=ibinent();
 
-%% Obtain a symbolic version of P(UV|XZ)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Obtain a symbolic version of P(UV|XZ) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Floating point P(UV|XZ)
 P_UVgXZ=P_lgap./P_XZ;
@@ -143,7 +49,7 @@ as=Ps_UVgXZ{1,1,2,2}+Ps_UVgXZ{1,2,2,2};
 ps=sym(num2str(p,5));
 
 %% Construct a distribution satisfying the long Markov chain U - X - Z - V
-%% with a as the parameter of the BSCs X -> U and Z -> V
+%% where as is the parameter of the BSCs X -> U and Z -> V
 Ps_UVgXZ_ref={};
 for x=1:2
   for z=1:2
@@ -177,7 +83,10 @@ Psv_UVXZ=( Psv_UVgXZ_ref+get_projection_matrix()*(Psv_UVgXZ-Psv_UVgXZ_ref) ) .* 
 %% turn Psv_UVXZ into 2x2x2x2 cell array
 Psc_UVXZ=reshape(num2cell(Psv_UVXZ),2,2,2,2);
 
-%% Construct interval representations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Construct interval representations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Rate interval
 Ri=1-binent(infsupdec(char(as)));
 
@@ -214,8 +123,10 @@ Hi_UV=ent(reshape(Pi_UV,[],1));
 %% This yields an interval for mu
 mui=Ri+Ri-Hi_UV-Hi_XZ+Hi_UVXZ;
 
-%% We now have the point (mui, Ri) as a conterexample
-%% We need to upper bound the inner bound and show that there is a gap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% We now have the point (mui, Ri) as a conterexample                  %
+%% We need to upper bound the inner bound and show that there is a gap %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Prepare the grid
 Rv1=linspace(0,bdp,floor(K/4))';

@@ -1,3 +1,5 @@
+\synctex=1
+
 \documentclass[a4paper,12pt]{scrartcl}
 
 %%%%%%%%%%%%%%%%% 
@@ -5,43 +7,71 @@
 %%%%%%%%%%%%%%%%% 
 
 % Load all packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{geometry}
 \usepackage{amsfonts}
 \usepackage{amsthm}
+\usepackage{mathtools}
 \usepackage{biblatex}
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage[capitalize]{cleveref}
+\usepackage{listings}
 
 \newtheorem{lemma}{Lemma}
 \addbibresource{lit.bib}
+
+\renewcommand{\ttdefault}{pcr}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Definition for this document only %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\heps}{\ensuremath{\hat \varepsilon}}
-\DeclareMathOperator{\cvx}{conv}
+\newcommand{\cvx}[1]{\ensuremath{\mathrm{conv}(#1)}}
 \newcommand{\hPcond}[2]{\ensuremath{\hat{\mathrm{P}}\{#1|#2\}}}
 \newcommand{\Pcond}[2]{\ensuremath{\mathrm{P}}\{#1|#2\}}
 \newcommand{\hProb}{\ensuremath{\hat{\mathrm{P}}}}
 \newcommand{\ul}[1]{\ensuremath{\underline{#1}}}
 \newcommand{\wt}[1]{\ensuremath{\widetilde{#1}}}
+\newcommand{\mat}[1]{\ensuremath{\mathbf{#1}}}
 \newcommand{\vt}[1]{\ensuremath{\mathbf{#1}}}
-\newcommand{\rv}[1]{\ensuremath{\ensuremath{\mathsf{\uppercase{#1}}}}}
+\newcommand{\rv}[1]{\ensuremath{\mathsf{\uppercase{#1}}}}
 \newcommand{\hrv}[1]{\ensuremath{\hat{\rv{#1}}}}
 \newcommand{\transp}{\ensuremath{^{\mathrm T}}}
+\newcommand{\AAA}{\ensuremath{\mathcal A}}
 \newcommand{\SSS}{\ensuremath{\mathcal S}}
 \newcommand{\OOO}{\ensuremath{\mathcal O}}
-\newcommand{\bernoulli}[1]{\ensuremath{\mathcal B(#1)}}
+\newcommand{\bernoulli}[1]{\ensuremath{\mathcal{B}(#1)}}
 \newcommand{\DSBS}[1]{\ensuremath{\mathrm{DSBS}(#1)}}
 \newcommand{\RR}{\ensuremath{\mathbb R}}
-\newcommand{\defas}{\ensuremath{:=}}
-\newcommand{\mkv}{\ensuremath{-}}
-\newcommand{\binEnt}[1]{\ensuremath{\mathrm h_0(#1)}}
-\newcommand{\mutInf}[2]{\ensuremath{\mathrm I(#1;#2)}}
+\newcommand{\defas}{\vcentcolon=}
+
+\def\barcirc{\mathrel{\barcirci}}
+\def\barcirci{{%
+    \setbox0\hbox{\ensuremath{\relbar\!\!\relbar}}%
+    \rlap{\hbox to \wd0{\hss\ensuremath{\circ}\hss}}\box0
+}}
+\newcommand{\mkv}{\ensuremath{\barcirc}}
+
+\newcommand{\binEnt}[1]{\ensuremath{\mathrm{H}(#1)}}
+\newcommand{\binEntInv}[1]{\ensuremath{\mathrm{H}^{-1}(#1)}}
+\newcommand{\mutInf}[2]{\ensuremath{\mathrm{I}(#1;#2)}}
 \newcommand{\Nto}[1]{\ensuremath{\{1,2,\dots,#1\}}}
 
+
+\lstloadlanguages{Octave}
+\lstset{%
+  language=Octave,
+  numbers=left,
+  stepnumber=2,
+  numberstyle=\tiny,
+  basicstyle=\ttfamily,
+  keywordstyle=\bfseries,
+  morekeywords={inf,sup,convhulln},
+  breaklines=true,
+}
 
 %%%%%%%%%%
 % Layout %
@@ -88,7 +118,7 @@ Assume $p \in (0,\frac 12)$ and define the set $\SSS' \subseteq \RR^3$ as
         \big\},
 \end{align}
 where $\binEnt{t} \defas -t\log_2(t) - (1-t) \log_2(1-t)$ is the binary entropy function and $a * b \defas a(1-b)+(1-a)b$ is the binary convolution.
-Let $\SSS \defas \cvx(\SSS')$ denote the convex hull of $\SSS'$.
+Let $\SSS \defas \cvx{\SSS'}$ denote the convex hull of $\SSS'$.
 
 Note that we can also define $\SSS'' \subseteq \RR^3$ as
 \begin{align}
@@ -99,7 +129,7 @@ Note that we can also define $\SSS'' \subseteq \RR^3$ as
   \mu &= 1 - \binEnt{\alpha * p * \beta} 
         \big\}
 \end{align}
-and obtain $\SSS' = \SSS'' + \OOO$, where $\OOO \defas \RR_- \times \RR_+ \times \RR_+ $. Letting $\wt\SSS$ be the upper concave envelope of $\SSS''$, we have $\SSS = \wt\SSS + \OOO$.
+and obtain $\SSS' = \SSS'' + \OOO$, where $\OOO \defas \RR_- \times \RR_+ \times \RR_+ $. Letting $\wt\SSS \defas \cvx{\SSS''}$, we have $\SSS = \wt\SSS + \OOO$.
 
 The random variables $(\rv x, \rv y) \sim \DSBS{p}$ are a doubly symmetric binary source with parameter $p$, i.e., $\rv x \sim \bernoulli{\frac12}$ is a Bernoulli random variable with parameter $\frac12$ and $\rv y \defas \rv x \oplus \rv z$, where $\oplus$ denotes the binary ``xor'' operation. The random variable $\rv z \sim \bernoulli{p}$ is independent of $\rv x$. We want to show that there exist random variables $(\rv u, \rv v)$ with\footnote{For random variables $\rv x$, $\rv y$ and $\rv z$ we use the notation $\rv x \mkv \rv y \mkv \rv z$ to denote that $\rv x$, $\rv y$ and $\rv z$ form a Markov chain in this order, i.e, $\rv x$ is independent of $\rv z$ given $\rv y$.} $\rv u \mkv \rv x \mkv \rv z$ and $\rv x \mkv \rv z \mkv \rv v$, such that $(\mu, R_1, R_2) \notin \SSS$, where
 \begin{align}
@@ -110,16 +140,20 @@ The random variables $(\rv x, \rv y) \sim \DSBS{p}$ are a doubly symmetric binar
 
 \section{Counterexample}
 \label{sec:counterexample}
-By random search we numerically found an approximate distribution $\hPcond{\hrv u=u, \hrv v=v}{\rv x=x, \rv z=z}$ with $u,v,x,z \in \{0,1\}$, that will serve as a candidate. We interpret the conditional distribution $\hProb$ as a vector in $[0,1]^{16}$. Additionally $\hProb$ has the property that $\hPcond{\hrv u=u}{\rv x=x} \approx \hPcond{\hrv v=u}{\rv z=x}$, up to numerical error. Notice that the required Markov chains $\rv u \mkv \rv x \mkv \rv z$ and $\rv x \mkv \rv z \mkv \rv v$, as well as the requirements $\sum_{u,v} \Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z} = 1$ for all $x,z \in \{0,1\}$ are linear constraints on $\Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z} \in [0,1]^{16}$. By calculating the kernel of the corresponding matrix, we can find a symbolic approximation $\mathrm{P}$ of $\hat{\mathrm{P}}$ which is a probability distribution satisfying the required Markov chains, as well as $\Pcond{\rv u=u}{\rv x=x} = \Pcond{\rv v=u}{\rv z=x}$. Hence, we found the candidate $(\mu', R', R')$ with $R'=\mutInf{\rv u}{\rv x}=\mutInf{\rv v}{\rv z}$ and $\mu' = 2R' - \mutInf{\rv u \rv v}{\rv x \rv z}$. Using interval arithmetic\footnote{We will use underlined type to denote intervals and use the following notation to compare intervals: $\ul a < \ul b$ iff $a < b$ for all $a \in \ul a$ and $b \in \ul b$. Additionally, we define $b < \ul a$ iff $\{b\} < \ul a$.}~\cite{Moore2009Introduction}, we compute intervals $\ul\mu' \ni \mu'$ and $\ul R' \ni R'$.
+By random search we numerically found an approximate distribution $\hPcond{\hrv u=u, \hrv v=v}{\rv x=x, \rv z=z}$ with $u,v,x,z \in \{0,1\}$, that will serve as a candidate.
+We interpret the conditional distribution $\hProb$ as a vector in $[0,1]^{16}$. Additionally $\hProb$ has the property that $\hPcond{\hrv u=u}{\rv x=x} \approx \hPcond{\hrv v=u}{\rv z=x}$, up to numerical error.
+Notice that the required Markov chains $\rv u \mkv \rv x \mkv \rv z$ and $\rv x \mkv \rv z \mkv \rv v$, as well as the requirements $\sum_{u,v} \Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z} = 1$ for all $x,z \in \{0,1\}$ are linear constraints on $\Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z} \in [0,1]^{16}$.
+By calculating the kernel of the corresponding matrix, we can find a symbolic approximation $\mathrm{P}$ of $\hat{\mathrm{P}}$ which is a probability distribution satisfying the required Markov chains, as well as $\Pcond{\rv u=u}{\rv x=x} = \Pcond{\rv v=u}{\rv z=x}$ for $u,x \in \{0.1\}$.
+Hence, we found the candidate $(\mu^\circ, R^\circ, R^\circ)$ with $R^\circ=\mutInf{\rv u}{\rv x}=\mutInf{\rv v}{\rv z}$ and $\mu^\circ = 2R^\circ - \mutInf{\rv u \rv v}{\rv x \rv z}$. Using interval arithmetic\footnote{We will use underlined letters to denote intervals and use the following notation to compare intervals: $\ul a < \ul b$ iff $a < b$ for all $a \in \ul a$ and $b \in \ul b$. Additionally, we define $b < \ul a$ iff $\{b\} < \ul a$.}~\cite{Moore2009Introduction}, we compute intervals $\ul\mu^\circ \ni \mu^\circ$ and $\ul R^\circ \ni R^\circ$.
 
 \section{The Lower Bound}
 \label{sec:lower-bound}
 
-Let $\hat\mu(R_1,R_2) \defas \max\{\mu : (\mu, R_1, R_2) \in \SSS \}$ and by slightly abusing notation $\hat\mu(R) \defas \hat\mu(R,R)$. We will upper bound $\hat\mu(R')$ in order to ultimately prove $\hat\mu(R') < \ul\mu'$.
+Let $\hat\mu(R_1,R_2) \defas \max\{\mu : (\mu, R_1, R_2) \in \SSS \}$ and by slightly abusing notation $\hat\mu(R) \defas \hat\mu(R,R)$. We will upper bound $\hat\mu(R^\circ)$ in order to ultimately prove $\hat\mu(R^\circ) < \ul\mu^\circ$.
 
-Given a rate pair $(R_1, R_2) \in [0,1]^2$, we can obtain intervals $\ul\alpha, \ul\beta$ such that $R_1 \in 1 - \binEnt{\ul\alpha}$ and $R_2 \in 1 - \binEnt{\ul\beta}$, using an interval implementation of the inverse binary entropy function. This yields an interval $\ul\mu(\ul\alpha, \ul\beta) \supseteq 1 - \binEnt{\ul\alpha * p * \ul\beta}$.
+Given a rate pair $(R_1, R_2) \in [0,1]^2$, we can obtain intervals $\ul\alpha, \ul\beta$ such that $R_1 \in 1 - \binEnt{\ul\alpha}$ and $R_2 \in 1 - \binEnt{\ul\beta}$ using an interval implementation of the inverse binary entropy function. This yields an interval $\ul\mu(\ul\alpha, \ul\beta) \supseteq 1 - \binEnt{\ul\alpha * p * \ul\beta}$.
 Given strictly increasing rates $R(i) \in [0,1]$ with $i \in \Nto{M}$ and $0 = R(1) < R(2) < \dots < R(M) = 1$,
-we perform this process on the $M \times M$ grid $(R(i), R(j))_{i,j=1\dots M}$ where $M \approx 800$ and obtain $\ul\mu(i,j)_{i,j=1\dots M}$, an interval representation of $\SSS''$. However, we are interested in $\wt\SSS$, i.e., the upper concave envelope of $\mu$.
+we perform this process on the $M \times M$ grid $(R(i), R(j))_{i,j=1\dots M}$ where $M \approx 800$ and obtain $\ul\mu(i,j)_{i,j=1\dots M}$, an interval representation of $\SSS''$. However, we are interested in $\wt\SSS = \cvx{\SSS''}$.
 We shift $\ul\mu$ by one and obtain $\ul{\wt\mu}(i,j) \defas \ul\mu\big(\min(i+1,M),\min(j+1,M)\big)$.
 
 \begin{lemma}
@@ -131,11 +165,65 @@ We shift $\ul\mu$ by one and obtain $\ul{\wt\mu}(i,j) \defas \ul\mu\big(\min(i+1
   If there is a point in $\vt x \in \wt\SSS$ with $\vt a \cdot \vt x < b$, then there must also be a point $\vt x' = (\mu, R_1, R_2)  \in \SSS''$ with $\vt a \cdot \vt x' < b$. There is a square $[R(i), R(i+1)] \times [R(j), R(j+1)] \ni (R_1, R_2)$. Clearly $\mu \not\ge \ul{\wt\mu}(i,j)$ and hence $\vt a \cdot (\ul{\wt\mu}(i,j), R(i), R(j)) \not\ge \vt a \cdot \vt x' < b$.
 \end{proof}
 
-We obtain a suitable pair $\vt a \in \OOO$, $b \in \RR$ and verify the condition of \cref{lem:bound}. Clearly $\vt a \cdot \vt x \ge b$ for all $\vt x \in \SSS$. It remains to verify that
+We obtain $\vt a = (a_1, a_2, a_3) \in \OOO$, $b \in \RR$ and verify the condition of \cref{lem:bound}. Clearly $\vt a \cdot \vt x \ge b$ for all $\vt x \in \SSS$. It remains to verify that
 \begin{align}
-  \frac{b - (\vt a_2, \vt a_3)\transp \cdot (\ul R', \ul R')\transp}{\vt a_1} < \ul\mu' .
+  a_1 \ul\mu^\circ + (a_2 + a_3) \ul R^\circ < b  .
 \end{align}
 
+\section{Source Files}
+\label{sec:source-files}
+
+\begin{itemize}
+\item \texttt{utils/binent.m}
+
+  The function $\texttt{binent(x)}$ computes the binary entropy function $\texttt{binent(x)} = \binEnt{x}$. If the argument is a vector, $\binEnt{x}$ it is computed element-wise.
+
+  \lstinputlisting{../utils/binent.m}
+\item \texttt{utils/hyperplane3.m}
+
+  This functions operates on intervals. Essentially, it computes the plane that intersects three given points in $\RR^3$.
+  Given three interval vectors $\ul{\vt x} = \texttt{x}$, $\ul{\vt y} = \texttt{y}$, and $\ul{\vt z} = \texttt{z}$, where $\ul{\vt x}, \ul{\vt y}, \ul{\vt z} \subseteq \RR^3$, we obtain the three vectors $\ul{\vt w}_1 = (\ul{x}_1, \ul{y}_1, \ul{z}_1)$, $\ul{\vt w}_2 = (\ul{x}_2, \ul{y}_2, \ul{z}_2)$, and $\ul{\vt w}_3 = (\ul{x}_3, \ul{y}_3, \ul{z}_3)$. The function returns $(\vt a, b) = \texttt{hyperplane3(x,y,z)}$ such that $\vt a \in \RR^3$, $a_3 \le 0$, and $\vt a \cdot \ul{\vt w}_i \ge b$ for $i \in \{1,2,3\}$. Up to numerical errors, $\vt a$ is orthogonal to the plane spanned by the mean values of the intervals $\ul{\vt w}_i$ and $b$ is chosen maximally.
+  
+  \lstinputlisting{../utils/hyperplane3.m}
+\item \texttt{utils/ent.m}
+
+  This function computes the entropy of a p.m.f.\ $\vt x$, $\texttt{ent(x)} = \binEnt{\vt x}$, where
+  \begin{align}
+    \binEnt{\vt x} = - \sum_{i=1}^{n} x_i \log_2 x_i .
+  \end{align}
+  If the argument has more than one dimension, $\binEnt{\vt x}$ is computed along the first dimension.
+
+  \lstinputlisting{../utils/ent.m}
+\item \texttt{utils/get\_projection\_matrix.m}
+
+  Let $\AAA \in \RR^{16}$ be the affine space, such that $\AAA \cap [0,1]^{16}$ is the set of conditional probability distributions $\Pcond{\rv u=u, \rv v=v}{\rv x=x, \rv z=z}$ with $x,z,u,v \in \{0,1\}$, such that $\rv u \mkv \rv x \mkv \rv z$, $\rv x \mkv \rv z \mkv \rv v$ and the marginals $\Pcond{\rv u=u}{\rv x=x}$ and $\Pcond{\rv v=v}{\rv z=z}$ are constant.
+  We may write $\AAA = \vt x + \AAA'$ where $\vt x \in \AAA$ and $\AAA'$ is a linear space.
+  The function $\mat N = \texttt{get\_projection\_matrix()}$ returns a $16 \times 16$ symbolic matrix $\mat N$, that performs an orthogonal projection onto $\AAA'$.
+  
+  \lstinputlisting{../utils/get_projection_matrix.m}
+\item \texttt{utils/ibinent.m}
+
+  The class \texttt{ibinent}, which provides an interval version of the inverse binary entropy function $\binEntInv{\cdot}$. To construct it, we take advantage of the fact that $\binEnt{\cdot}$ is a concave function.
+  
+  \lstinputlisting{../utils/ibinent.m}
+
+  
+\item \texttt{utils/star.m}
+
+  This functions computes the binary convolution $\texttt{star(a,b)} = a (1-b) + (1-a) b$. If the arguments are vectors, the function is computed element-wise.
+  
+  \lstinputlisting{../utils/star.m}
+  
+\item \texttt{utils/upper\_concave\_envelope3\_tri.m}
+
+  \lstinputlisting{../utils/upper_concave_envelope3_tri.m}
+\item \texttt{utils/verify\_hyperplane.m}
+
+  \lstinputlisting{../utils/verify_hyperplane.m}
+\item \texttt{utils/z\_interp2.m}
+
+  \lstinputlisting{../utils/z_interp2.m}
+\end{itemize}
  
 % \begin{appendix}
 %   \section{Appendix}
