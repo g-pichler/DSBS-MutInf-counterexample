@@ -41,6 +41,7 @@
 \newcommand{\hrv}[1]{\ensuremath{\hat{\rv{#1}}}}
 \newcommand{\transp}{\ensuremath{^{\mathrm T}}}
 \newcommand{\AAA}{\ensuremath{\mathcal A}}
+\newcommand{\HHH}{\ensuremath{\mathcal H}}
 \newcommand{\SSS}{\ensuremath{\mathcal S}}
 \newcommand{\OOO}{\ensuremath{\mathcal O}}
 \newcommand{\bernoulli}[1]{\ensuremath{\mathcal{B}(#1)}}
@@ -181,8 +182,8 @@ We obtain $\vt a = (a_1, a_2, a_3) \in \OOO$, $b \in \RR$ and verify the conditi
   \lstinputlisting{../utils/binent.m}
 \item \texttt{utils/hyperplane3.m}
 
-  This functions operates on intervals. Essentially, it computes the plane that intersects three given points in $\RR^3$.
-  Given three interval vectors $\ul{\vt x} = \texttt{x}$, $\ul{\vt y} = \texttt{y}$, and $\ul{\vt z} = \texttt{z}$, where $\ul{\vt x}, \ul{\vt y}, \ul{\vt z} \subseteq \RR^3$, we obtain the three vectors $\ul{\vt w}_1 = (\ul{x}_1, \ul{y}_1, \ul{z}_1)$, $\ul{\vt w}_2 = (\ul{x}_2, \ul{y}_2, \ul{z}_2)$, and $\ul{\vt w}_3 = (\ul{x}_3, \ul{y}_3, \ul{z}_3)$. The function returns $(\vt a, b) = \texttt{hyperplane3(x,y,z)}$ such that $\vt a \in \RR^3$, $a_3 \le 0$, and $\vt a \cdot \ul{\vt w}_i \ge b$ for $i \in \{1,2,3\}$. Up to numerical errors, $\vt a$ is orthogonal to the plane spanned by the mean values of the intervals $\ul{\vt w}_i$ and $b$ is chosen maximally.
+  Given three interval vectors $\ul{\vt x}, \ul{\vt y}, \ul{\vt z} \subseteq \RR^3$, we obtain the three vectors $\ul{\vt w}_i = (\ul{x}_i, \ul{y}_i, \ul{z}_i)$, with $i \in \{1,2,3\}$.
+  Let $\vt w_i$ denote the mean of the interval vector $\ul{\vt w}_i$ for $i \in \{1,2,3\}$. The function the computes a vector $\vt a \perp \{\vt w_1 - \vt w_2, \vt w_1 - \vt w_3\}$ with $a_3 \le 0$. It returns $(\vt a, b) = \texttt{hyperplane3(x,y,z)}$ such that $b$ is maximal with $\vt a \cdot \ul{\vt w}_i \ge b$ for $i \in \{1,2,3\}$.
   
   \lstinputlisting{../utils/hyperplane3.m}
 \item \texttt{utils/ent.m}
@@ -203,7 +204,7 @@ We obtain $\vt a = (a_1, a_2, a_3) \in \OOO$, $b \in \RR$ and verify the conditi
   \lstinputlisting{../utils/get_projection_matrix.m}
 \item \texttt{utils/ibinent.m}
 
-  The class \texttt{ibinent}, which provides an interval version of the inverse binary entropy function $\binEntInv{\cdot}$. To construct it, we take advantage of the fact that $\binEnt{\cdot}$ is a concave function.
+  The class \texttt{ibinent} provides an interval version of the inverse binary entropy function $\binEntInv{\cdot}$. To construct it, we take advantage of the fact that $\binEnt{\cdot}$ is a concave function.
   
   \lstinputlisting{../utils/ibinent.m}
 
@@ -216,7 +217,11 @@ We obtain $\vt a = (a_1, a_2, a_3) \in \OOO$, $b \in \RR$ and verify the conditi
   
 \item \texttt{utils/upper\_concave\_envelope3\_tri.m}
 
+  Given three vectors $\vt x$, $\vt y$, and $\vt z$, each of length $n$, we interpret them as a points $\vt w_i = (x_i, y_i, z_i)$, where $i \in \Nto{n}$.
+  These points span the polytope $\AAA \defas \cvx{\vt w_i : i \in \Nto{n}}$. Let $\OOO \defas \{(x,y,z) : x,y \ge 0, z \le 0 \}$. We are interested in the compact faces of $\AAA' \defas \AAA + \OOO$. The function $\mat T = \texttt{upper\_concave\_envelope3\_tri(x,y,z)}$ returns an $M \times 3$ matrix $\mat T = (\vt k^{(1)}, \vt k^{(2)}, \dots ,\vt k^{(m)})\transp$. The $M$ triangles $\cvx{\vt w_{k^{(m)}_i} : i \in \{1,2,3\}}$, $m \in \Nto{M}$, provide a triangularization of all compact faces of $\AAA'$.
+  
   \lstinputlisting{../utils/upper_concave_envelope3_tri.m}
+  
 \item \texttt{utils/verify\_hyperplane.m}
 
   \lstinputlisting{../utils/verify_hyperplane.m}
