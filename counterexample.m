@@ -87,9 +87,6 @@ Psc_UVXZ=reshape(num2cell(Psv_UVXZ),2,2,2,2);
 %% Construct interval representations %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Rate interval
-Ri=1-binent(infsupdec(char(as)));
-
 %% BSC parameters
 ppi=infsupdec(char(ps));
 
@@ -119,6 +116,9 @@ Hi_XZ=infsupdec('1')+binent(ppi);
 Hi_UVXZ=ent(Piv_UVXZ);
 %% Calculate the entropy of (UV)
 Hi_UV=ent(reshape(Pi_UV,[],1));
+
+%% Rate interval
+Ri=1-binent(infsupdec(char(as)));
 
 %% This yields an interval for mu
 mui=Ri+Ri-Hi_UV-Hi_XZ+Hi_UVXZ;

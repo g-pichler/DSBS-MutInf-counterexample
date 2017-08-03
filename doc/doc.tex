@@ -33,6 +33,7 @@
 \newcommand{\hPcond}[2]{\ensuremath{\hat{\mathrm{P}}\{#1|#2\}}}
 \newcommand{\Pcond}[2]{\ensuremath{\mathrm{P}}\{#1|#2\}}
 \newcommand{\hProb}{\ensuremath{\hat{\mathrm{P}}}}
+\newcommand{\Prob}{\ensuremath{\mathrm{P}}}
 \newcommand{\ul}[1]{\ensuremath{\underline{#1}}}
 \newcommand{\wt}[1]{\ensuremath{\widetilde{#1}}}
 \newcommand{\mat}[1]{\ensuremath{\mathbf{#1}}}
@@ -70,9 +71,18 @@
   numberstyle=\tiny,
   basicstyle=\ttfamily,
   keywordstyle=\bfseries,
-  morekeywords={inf,sup,convhulln},
+  morekeywords={inf,sup,convhulln,precedes,infsupdec},
   breaklines=true,
 }
+
+% This makes sure that firstnumber = firstline
+\makeatletter
+\patchcmd{\lst@GLI@}% <command>
+  {\def\lst@firstline{#1\relax}}% <search>
+  {\def\lst@firstline{#1\relax}\def\lst@firstnumber{#1\relax}}% <replace>
+  {\typeout{listings firstnumber=firstline}}% <success>
+  {\typeout{listings firstnumber not set}}% <failure>
+\makeatother
 
 %%%%%%%%%%
 % Layout %
@@ -93,7 +103,7 @@
 %%%%%%%%%%%%%%%%%%%%
 % Document Details %
 %%%%%%%%%%%%%%%%%%%%
-\title{Readme}
+\title{Documentation}
 \author{Georg Pichler}
 \date{\today}
 
@@ -153,13 +163,13 @@ Hence, we found the candidate $(\mu^\circ, R^\circ, R^\circ)$ with $R^\circ=\mut
 Let $\hat\mu(R_1,R_2) \defas \max\{\mu : (\mu, R_1, R_2) \in \SSS \}$ and by slightly abusing notation $\hat\mu(R) \defas \hat\mu(R,R)$. We will upper bound $\hat\mu(R^\circ)$ in order to ultimately prove $\hat\mu(R^\circ) < \ul\mu^\circ$.
 
 Given a rate pair $(R_1, R_2) \in [0,1]^2$, we can obtain intervals $\ul\alpha, \ul\beta$ such that $R_1 \in 1 - \binEnt{\ul\alpha}$ and $R_2 \in 1 - \binEnt{\ul\beta}$ using an interval implementation of the inverse binary entropy function. This yields an interval $\ul\mu(\ul\alpha, \ul\beta) \supseteq 1 - \binEnt{\ul\alpha * p * \ul\beta}$.
-Given strictly increasing rates $R(i) \in [0,1]$ with $i \in \Nto{M}$ and $0 = R(1) < R(2) < \dots < R(M) = 1$,
-we perform this process on the $M \times M$ grid $(R(i), R(j))_{i,j=1\dots M}$ where $M \approx 800$ and obtain $\ul\mu(i,j)_{i,j=1\dots M}$, an interval representation of $\SSS''$. However, we are interested in $\wt\SSS = \cvx{\SSS''}$.
-We shift $\ul\mu$ by one and obtain $\ul{\wt\mu}(i,j) \defas \ul\mu\big(\min(i+1,M),\min(j+1,M)\big)$.
+Given strictly increasing rates $R(i) \in [0,1]$ with $i \in \Nto{K}$ and $0 = R(1) < R(2) < \dots < R(K) = 1$,
+we perform this process on the $K \times K$ grid $(R(i), R(j))_{i,j=1\dots K}$ where $K \approx 800$ and obtain $\ul\mu(i,j)_{i,j=1\dots K}$, an interval representation of $\SSS''$. However, we are interested in $\wt\SSS = \cvx{\SSS''}$.
+We shift $\ul\mu$ by one and obtain $\ul{\wt\mu}(i,j) \defas \ul\mu\big(\min(i+1,K),\min(j+1,K)\big)$.
 
 \begin{lemma}
   \label{lem:bound}
-  Let $\vt a \in \OOO$, $b \in \RR$. If $\vt a \cdot (\ul{\wt\mu}(i,j), R(i), R(j)) \ge b$ for all $i,j = 1\dots M$, then $\vt a \cdot \vt x \ge b$ for all $\vt x \in \wt\SSS$.   
+  Let $\vt a \in \OOO$, $b \in \RR$. If $\vt a \cdot (\ul{\wt\mu}(i,j), R(i), R(j)) \ge b$ for all $i,j = 1\dots K$, then $\vt a \cdot \vt x \ge b$ for all $\vt x \in \wt\SSS$.   
 \end{lemma}
 \begin{proof}
   % Observe that $\mu(i,j)$ is increasing in the sense that $\mu(i,j) \le \mu(i+1,j)$ and $\mu(i,j) \le \mu(i,j+1)$.
@@ -170,6 +180,49 @@ We obtain $\vt a = (a_1, a_2, a_3) \in \OOO$, $b \in \RR$ and verify the conditi
 \begin{align}
   a_1 \ul\mu^\circ + (a_2 + a_3) \ul R^\circ < b  .
 \end{align}
+
+\section{Verification}
+\label{sec:verification}
+
+The verification of the counterexample is performed by \texttt{counterexample.m}. After some preliminary checks and loading the required packages, the approximate distribution $\hPcond{\hrv u=u, \hrv v=v}{\rv x=x, \rv z=z}$ is imported from \texttt{numeric\_distribution.dat} and we set some parameters that will be used for calculating the sequence of rates $0 = R(1) < R(2) < \dots < R(K) = 1$. We also initialize the inverse binary entropy function class \texttt{ibinent}.
+
+\lstinputlisting[%
+firstline=14,
+lastline=22,
+]{../counterexample.m}
+
+The meaning of $K$, $Q$, $\mathrm{bdp}$ is a follows. The first $\frac K4$ rates will be spaced uniformly in $[0, \mathrm{bdp}]$. The remaining $\frac{3K}{4}$ rates are calculated as $R=1-x^Q$, where $x$ is uniformly spaced in $[0, (1-\mathrm{bdp})^{\frac 1Q})$.
+
+Next we construct the symbolic distribution $\mathrm{P} = \texttt{Psc\_UVXZ}$. We do so by first constructing a symbolic distribution $\texttt{Psv\_XZ} = \Prob(\rv x=x, \rv z=z)$ and the symbolic reference distribution $\texttt{Psv\_UVgXZ\_ref} = \mathrm{P}_{\mathrm{ref}}(\hrv u=u, \hrv v=v|\rv x=x, \rv z=z)$ that satisfies the long Markov chain $\hrv u \mkv \rv x \mkv \rv z \mkv \hrv v$ and has two identical BSCs $\rv x \to \hrv u$, $\rv z \to \hrv v$.
+Then we apply the projection matrix returned by \texttt{get\_projection\_matrix()} to the conditional distribution $\hPcond{\hrv u=u, \hrv v=v}{\rv x=x, \rv z=z} = \texttt{Psv\_UVgXZ}$.
+
+\lstinputlisting[%
+firstline=79,
+lastline=84,
+]{../counterexample.m}
+
+We use these symbolic distributions to calculate the intervals $\texttt{Ri} = \ul R^\circ$ and $\texttt{mui} = \ul \mu^\circ$.
+
+\lstinputlisting[%
+firstline=120,
+lastline=124,
+]{../counterexample.m}
+
+The last section is dedicated to the inner bound. First the rates $\texttt{Rv} = R(i)_{i=1\dots K}$ are calculated and we obtain the grid $\texttt{MUmi} = \ul\mu(i,j)_{i,j=1\dots K}$, which is subsequently shifted to obtain $\ul{\wt{\mu}}$.
+
+\lstinputlisting[%
+firstline=137,
+lastline=151,
+]{../counterexample.m}
+
+Finally, we use \texttt{upper\_concave\_envelope3\_tri} to obtain the triangularization $\mat T$. Using the function \texttt{tsearchn} we find the triangle that contains $(\ul R^\circ, \ul R^\circ)$. We construct a supporting hyperplane using \texttt{hyperplane3}, verify it with \texttt{verify\_hyperplane} and finally obtain the upper bound to our inner bound $\texttt{MUi} = \ul \mu$ by interpolating on the resulting hyperplane. Comparing $\ul \mu$ with $\ul \mu^\circ$ yields
+\begin{align}
+  \ul \mu^\circ - \ul \mu \ge 10^{-4} .
+\end{align}
+\lstinputlisting[%
+firstline=168,
+]{../counterexample.m}
+
 
 \section{Source Files}
 \label{sec:source-files}
@@ -224,9 +277,13 @@ We obtain $\vt a = (a_1, a_2, a_3) \in \OOO$, $b \in \RR$ and verify the conditi
   
 \item \texttt{utils/verify\_hyperplane.m}
 
+  This function verifies that the pair $(\vt a, b)$ represents a supporting hyperplane. Given three (interval) vectors $\ul{\vt x}$, $\ul{\vt y}$, and $\ul{\vt z}$, each of length $n$, we interpret them as a (interval) points $\ul{\vt w}_i = (\ul x_i, \ul y_i, \ul z_i)$, where $i \in \Nto{n}$. The function $b=\texttt{verify\_hyperplane(q,x,y,z)}$ returns the Boolean $b = 1$ if $\ul{\vt w}_i \cdot \vt a \ge b$ for all $i \in \Nto{n}$, where $(\vt a, b) = \texttt{q}$. Otherwise the function returns $b = 0$.
+
   \lstinputlisting{../utils/verify_hyperplane.m}
 \item \texttt{utils/z\_interp2.m}
 
+  Given the hyperplane $\HHH \defas \{\vt v \in \RR^3: \vt a \cdot \vt v = b\}$ and to values (possibly intervals) $\ul x$ and $\ul y$, the function $\ul z =  \texttt{z\_interp2(q,x,y)}$ returns $\ul z$ such that $(x,y,z) \in \HHH \cap ( \ul x \times \ul y \times \RR )$ implies $z \in \ul z$. The first argument is $\texttt{q} = (\vt a, b)$.
+  
   \lstinputlisting{../utils/z_interp2.m}
 \end{itemize}
  
