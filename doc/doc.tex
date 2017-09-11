@@ -271,7 +271,7 @@ firstline=168,
 \item \texttt{utils/upper\_concave\_envelope3\_tri.m}
 
   Given three vectors $\vt x$, $\vt y$, and $\vt z$, each of length $n$, we interpret them as a points $\vt w_i = (x_i, y_i, z_i)$, where $i \in \Nto{n}$.
-  These points span the polytope $\AAA \defas \cvx{\vt w_i : i \in \Nto{n}}$. Let $\OOO \defas \{(x,y,z) : x,y \ge 0, z \le 0 \}$. We are interested in the compact faces of $\AAA' \defas \AAA + \OOO$. The function $\mat T = \texttt{upper\_concave\_envelope3\_tri(x,y,z)}$ returns an $M \times 3$ matrix $\mat T = (\vt k^{(1)}, \vt k^{(2)}, \dots ,\vt k^{(m)})\transp$. The $M$ triangles $\cvx{\vt w_{k^{(m)}_i} : i \in \{1,2,3\}}$, $m \in \Nto{M}$, provide a triangularization of all compact faces of $\AAA'$.
+  These points span the polytope $\AAA \defas \cvx{\vt w_i : i \in \Nto{n}}$. Let $\OOO \defas \{(x,y,z) : x,y \ge 0, z \le 0 \}$. We are interested in the compact faces of $\AAA' \defas \AAA + \OOO$. The function $\mat T = \texttt{upper\_concave\_envelope3\_tri(x,y,z)}$ returns an $M \times 3$ matrix $\mat T = (\vt k^{(1)}, \vt k^{(2)}, \dots ,\vt k^{(M)})\transp$. The $M$ triangles $\cvx{\vt w_{k^{(m)}_i} : i \in \{1,2,3\}}$, $m \in \Nto{M}$, provide a triangularization of all compact faces of $\AAA'$.
   
   \lstinputlisting{../utils/upper_concave_envelope3_tri.m}
   
@@ -282,7 +282,7 @@ firstline=168,
   \lstinputlisting{../utils/verify_hyperplane.m}
 \item \texttt{utils/z\_interp2.m}
 
-  Given the hyperplane $\HHH \defas \{\vt v \in \RR^3: \vt a \cdot \vt v = b\}$ and to values (possibly intervals) $\ul x$ and $\ul y$, the function $\ul z =  \texttt{z\_interp2(q,x,y)}$ returns $\ul z$ such that $(x,y,z) \in \HHH \cap ( \ul x \times \ul y \times \RR )$ implies $z \in \ul z$. The first argument is $\texttt{q} = (\vt a, b)$.
+  Given the hyperplane $\HHH \defas \{\vt v \in \RR^3: \vt a \cdot \vt v = b\}$ and two values (possibly intervals) $\ul x$ and $\ul y$, the function $\ul z =  \texttt{z\_interp2(q,x,y)}$ returns $\ul z$ such that $(x,y,z) \in \HHH \cap ( \ul x \times \ul y \times \RR )$ implies $z \in \ul z$. The first argument is $\texttt{q} = (\vt a, b)$.
   
   \lstinputlisting{../utils/z_interp2.m}
 \end{itemize}
