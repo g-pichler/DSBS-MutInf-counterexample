@@ -1,5 +1,5 @@
 # DSBS-MutInf-counterexample
-Complementary material for "Distributed Information-Theoretic Biclustering"
+Complementary material for "Distributed Information-Theoretic Clustering"
 
 We provide a counterexample to the second part of Conjecture 1 [i.e., eq.(15)] in  
 ```
